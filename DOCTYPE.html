@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mourin's Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    /* General reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    /* Prompt container */
+    #namePrompt {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      backdrop-filter: blur(10px);
+      animation: fadeIn 1.2s ease-in-out;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    input {
+      padding: 12px 15px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      width: 220px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: #ff758c;
+      background: linear-gradient(45deg, #ff758c, #ff7eb3);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      font-size: 16px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(255, 120, 160, 0.4);
+    }
+
+    #map {
+      height: 100vh;
+      width: 100%;
+      display: none;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div id="namePrompt">
+    <h2>🌍 Welcome! Enter your name to continue:</h2>
+    <input type="text" id="username" placeholder="Your name">
+    <br>
+    <button onclick="checkName()">Continue</button>
+  </div>
+  
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    function checkName() {
+      const name = document.getElementById("username").value.trim();
+      document.getElementById("namePrompt").style.display = "none";
+      document.getElementById("map").style.display = "block";
+
+      if (name.toLowerCase() === "mourin") {
+        showVIPMap();
+      } else {
+        showUserLocation();
+      }
+    }
+
+    function showUserLocation() {
+      const map = L.map('map').setView([20, 0], 2);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            map.setView([lat, lon], 13);
+            L.marker([lat, lon]).addTo(map)
+              .bindPopup("📍 You are here!").openPopup();
+          },
+          () => {
+            alert("⚠️ Location access denied. Showing default view.");
+          }
+        );
+      } else {
+        alert("❌ Geolocation is not supported by your browser.");
+      }
+    }
+
+    function showVIPMap() {
+      const map = L.map('map').setView([20, 0], 2);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Example VIP pins
+      const vipLocations = [
+        {name: "✨ Paris", coords: [48.8566, 2.3522]},
+        {name: "🌆 New York", coords: [40.7128, -74.0060]},
+        {name: "🏯 Tokyo", coords: [35.6895, 139.6917]}
+      ];
+
+      vipLocations.forEach(loc => {
+        L.marker(loc.coords).addTo(map)
+          .bindPopup(loc.name);
+      });
+    }
+  </script>
+</body>
+</html>
